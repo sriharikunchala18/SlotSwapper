@@ -1,6 +1,17 @@
 # SlotSwapper
 
-A peer-to-peer time-slot scheduling application where users can swap their busy slots.
+## Overview
+
+SlotSwapper is a peer-to-peer time-slot scheduling application that allows users to swap their busy slots with others. Users can create events on their calendar, mark certain slots as "SWAPPABLE" to offer for exchange, and browse a marketplace of available slots from other users to request swaps. The application handles the swap logic, including pending requests, acceptances, and rejections, ensuring a seamless experience for scheduling adjustments.
+
+### Design Choices
+
+- **Event Status System**: Events have statuses (BUSY, SWAPPABLE, SWAP_PENDING) to manage availability and swap states, preventing double-booking and ensuring atomic swap operations.
+- **JWT Authentication**: Secure user sessions with token-based auth, stored in localStorage for persistence.
+- **Real-time Updates**: Frontend uses polling for notifications and state updates, keeping the UI in sync without WebSockets for simplicity.
+- **MongoDB with Mongoose**: Flexible schema for users, events, and swap requests; uses MongoDB Memory Server for local development to avoid external dependencies.
+- **Docker Support**: Full containerization with Docker Compose for easy deployment, including MongoDB, backend, and frontend services.
+- **Modular Architecture**: Separated backend (Express API) and frontend (React SPA) for scalability and maintainability.
 
 ## Features
 
@@ -13,16 +24,73 @@ A peer-to-peer time-slot scheduling application where users can swap their busy 
 
 ## Tech Stack
 
-- Backend: Node.js, Express, MongoDB (MongoDB Memory Server), JWT
-- Frontend: React, Axios, React Router
+- Backend: Node.js, Express, MongoDB (with MongoDB Memory Server for dev), JWT, Socket.io (for real-time connections)
+- Frontend: React, Axios, React Router, CSS
+- Database: MongoDB
+- Deployment: Docker, Docker Compose
 
-## Installation
+## Installation and Setup
 
-1. Clone the repository
-2. Install backend dependencies: `cd backend && npm install`
-3. Install frontend dependencies: `cd frontend && npm start`
-4. Start the backend server: `cd backend && npm start`
-5. Start the frontend server: `cd frontend && npm start`
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+- (Optional) Docker and Docker Compose for containerized setup
+
+### Local Setup (Without Docker)
+
+1. **Clone the repository**:
+   ```
+   git clone https://github.com/sriharikunchala18/SlotSwapper.git
+   cd SlotSwapper
+   ```
+
+2. **Install backend dependencies**:
+   ```
+   cd backend
+   npm install
+   ```
+
+3. **Install frontend dependencies**:
+   ```
+   cd ../frontend
+   npm install
+   cd ..
+   ```
+
+4. **Start the backend server**:
+   ```
+   cd backend
+   npm start
+   ```
+   The backend will run on http://localhost:5000. It uses MongoDB Memory Server, so no external MongoDB is required.
+
+5. **Start the frontend server** (in a new terminal):
+   ```
+   cd frontend
+   npm start
+   ```
+   The frontend will run on http://localhost:3000.
+
+6. **Access the application**:
+   Open http://localhost:3000 in your browser.
+
+### Docker Setup (Recommended for Full Environment)
+
+1. **Clone the repository**:
+   ```
+   git clone https://github.com/sriharikunchala18/SlotSwapper.git
+   cd SlotSwapper
+   ```
+
+2. **Build and run with Docker Compose**:
+   ```
+   docker-compose up --build
+   ```
+   This will start MongoDB on port 27017, backend on port 5000, and frontend on port 3000.
+
+3. **Access the application**:
+   Open http://localhost:3000 in your browser.
 
 ## API Endpoints
 
@@ -85,3 +153,21 @@ A peer-to-peer time-slot scheduling application where users can swap their busy 
 4. Click "Request Swap" on a slot, select one of your SWAPPABLE slots to offer
 5. Check notifications for incoming requests (accept/reject) and outgoing request status
 6. Upon acceptance, events are swapped between users' calendars
+
+## Assumptions and Challenges
+
+### Assumptions
+- Users have basic familiarity with calendar applications and understand time-slot concepts.
+- MongoDB Memory Server is sufficient for development; production would use a persistent MongoDB instance.
+- JWT tokens are stored securely in localStorage (in a real app, consider httpOnly cookies for better security).
+- No concurrent swap requests on the same slot (handled by status locking).
+
+### Challenges Faced
+- Implementing atomic swap operations to prevent race conditions (solved with status-based locking).
+- Managing real-time updates without WebSockets (used polling for simplicity, but could be optimized with Socket.io).
+- Ensuring data consistency across events and swap requests during accept/reject operations.
+- Balancing frontend state management with backend API calls for a responsive UI.
+
+## Live Application
+
+The application is deployed and accessible at: [https://slotswapper-demo.herokuapp.com](https://slotswapper-demo.herokuapp.com) (Note: This is a placeholder; replace with actual deployment URL if available.)
